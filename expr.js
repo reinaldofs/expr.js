@@ -37,6 +37,7 @@ var especiais = [
 
 // separadores de blocos prioritários
 var grupo = ['{[(', '}])'];
+var reservado = ["true", "false"];
 
 // obtém o array de argumentos separados por operações
 function f_Expr(expr){
@@ -147,6 +148,68 @@ function f_Extract(expr, substituir){
 	}
 
 	return f_Expr(obj.join(''));
+}
+
+// Retorna todos os separadores
+function f_GetSeparadores(){
+	return grupo.join('')+especiais.join('');
+}
+// Obtém as variáveis de uma expressão
+function f_GetVars(expr){
+	var op;
+	// separa por operação
+	for (op in operacao){
+		expr = expr.split(operacao[op][0]).join('|');
+	}
+	// separa por símbolos 
+	var s = f_GetSeparadores();
+	var c;
+	for (c=0; c<s.length; c++){
+		expr = expr.split(s[c]).join('|');
+	}
+	expr = expr.split('|').filter(function(a){return reservado.indexOf(a)<0&&a!=''&&isNaN(Number(a))}).reduce(function(a,b){
+    if (a.indexOf(b) < 0 ) a.push(b);
+    return a;
+  },[]).sort(function(a, b){
+	  return b.length - a.length; // ASC -> a - b; DESC -> b - a
+	});;;
+	return expr;
+}
+
+// gera as N possibilidades para as variáveis da fórmula
+function f_Possibilidades(n){
+    var ret = [];
+    for(y=0; y<Math.pow(2,n); y++){
+        var c = [];
+        for(x=0; x<n; x++){
+            c.push(1==((y >> x) & 1));
+        }
+        ret.push(c);
+    }
+    return ret;
+}
+
+// obtém a tabela verdade de uma expressão
+function f_TabelaVerdade(expr){
+	// extrai as variaveis
+	var l_vars = f_GetVars(expr);
+	var l_val  = f_Possibilidades(l_vars.length);
+	var l_p, l_i, l_ret=[];
+	// percorre cada combinação possível
+	for (l_i in l_val){
+		var obj = {};
+		// define o valor de cada variavel
+		for (l_p in l_vars){
+			eval(l_vars[l_p]+'='+l_val[l_i][l_p]);
+			obj[l_vars[l_p]] = l_val[l_i][l_p];
+		}
+		
+		// executa a expressão
+		obj.resultado=ex(expr);
+		
+		l_ret.push(obj);
+	}
+	return l_ret;
 }
 
 // executa uma expressão
