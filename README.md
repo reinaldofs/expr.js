@@ -5,4 +5,6 @@ Interpretador de expressões lógicas e aritméticas. Feito com <3.
 Analisando lógicamente uma expressão: <br>
 <code> expr('¬(true→false)→true∧false↔false') </code> <br>
 Expressões matemáticas: <br>
-<code> expr('[(5+5*2)^3]') </code> 
+<code> expr('[(5+5*2)^3]') </code><br>
+Obter a tabela verdade da expressão: <br>
+<code> f_TabelaVerdade('(¬(P Λ Q) ↔ (¬P ∨ ¬Q)) Λ S')</code>
